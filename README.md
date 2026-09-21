@@ -62,14 +62,41 @@ GitPulseX sammelt umfassende Statistiken über alle Repositories eines GitHub-Be
 <details>
 <summary>📸 Screenshots</summary>
 
-![](assets/screenshots/ScreenShot1.png)
+
 
 ## Startfenster Benutzerauswahl
 
 ![](assets/screenshots/ScreenShot2.png)
 
 
+## Token
+
 ![](assets/screenshots/ScreenShot3.png)
+
+## Analyse läuft ...
+
+![](assets/screenshots/ScreenShot8.png)
+
+## Github Statistik Kurzzusammenfassung (oberer Teil)
+
+![](assets/screenshots/ScreenShot4.png)
+
+## Github Statistik Kurzzusammenfassung (unterer Teil)
+
+![](assets/screenshots/ScreenShot5.png)
+
+## Einstellungen (oberer Teil)
+
+![](assets/screenshots/ScreenShot6.png)
+
+## weitere Einstellungen
+
+![](assets/screenshots/ScreenShot7.png)
+
+
+## Über GitPulseX
+
+![](assets/screenshots/ScreenShot1.png)
 
 </details>
 
