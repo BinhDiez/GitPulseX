@@ -1,3 +1,6 @@
+Readme.md - GitPulseX
+
+
 # GitPulseX
 
 **GitHub Multi-Repository Statistik-Collector**
@@ -8,28 +11,6 @@ GitPulseX sammelt umfassende Statistiken über alle Repositories eines GitHub-Be
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-lightgrey)
 ![Python](https://img.shields.io/badge/python-3.9%2B-blue)
-
----
-
-## 📋 Inhaltsverzeichnis
-
-- [Features](#-features)
-- [Screenshots](#-screenshots)
-- [Installation](#-installation)
-  - [Voraussetzungen](#voraussetzungen)
-  - [Schritt 1: Repository klonen](#schritt-1-repository-klonen)
-  - [Schritt 2: Virtuelle Umgebung](#schritt-2-virtuelle-umgebung)
-  - [Schritt 3: Abhängigkeiten installieren](#schritt-3-abhängigkeiten-installieren)
-- [Verwendung](#-verwendung)
-  - [Erststart](#erststart)
-  - [Kommandzeilen-Argumente](#kommandozeilen-argumente)
-- [GitHub-Token erstellen](#-github-token-erstellen)
-- [Konfiguration](#-konfiguration)
-- [Verzeichnisstruktur](#-verzeichnisstruktur)
-- [Als App bauen](#-als-app-bauen)
-- [Fehlerbehebung](#-fehlerbehebung)
-- [Lizenz](#-lizenz)
-- [Autor](#-autor)
 
 ---
 
@@ -79,9 +60,7 @@ GitPulseX sammelt umfassende Statistiken über alle Repositories eines GitHub-Be
 ---
 
 <details>
-<summary>## 🚀 Installation</summary>
-
-## 🚀 Installation
+<summary>🚀 Installation</summary>
 
 ###Hier wird die Verwendung in einer Entwicklungsumgebung beschrieben.
 
@@ -135,7 +114,7 @@ Die `requirements.txt` enthält:
 ---
 
 <details>
-<summary>## 💻 Verwendung</summary>
+<summary>💻 Verwendung</summary>
 
 ### Erststart
 
@@ -203,7 +182,7 @@ python GitPulseX.py --no-dialog
 ---
 
 <details>
-<summary>## 🔑 GitHub-Token erstellen</summary>
+<summary>🔑 GitHub-Token erstellen</summary>
 
 Ein Token ist **nicht zwingend erforderlich**, aber **stark empfohlen**.
 
@@ -229,7 +208,7 @@ Ein Token ist **nicht zwingend erforderlich**, aber **stark empfohlen**.
 ---
 
 <details>
-<summary>### ⚙️ Konfiguration</summary>
+<summary>⚙️ Konfiguration</summary>
 
 Alle Einstellungen werden in `settings/github_stats_config.json` gespeichert und können **im Programm** über den **Einstellungen**-Button geändert werden.
 
@@ -320,7 +299,7 @@ Oder lade einfach die App aus dem Release herunter.
 ---
 
 <details>
-<summary>## 🔧 Fehlerbehebung</summary>
+<summary>🔧 Fehlerbehebung</summary>
 
 ### „Rate-Limit erreicht"
 
@@ -369,7 +348,7 @@ tail -50 logs/app.log
 ---
 
 <details>
-<summary>## 📄 Lizenz</summary>
+<summary>📄 Lizenz</summary>
 
 Dieses Projekt ist unter der **MIT-Lizenz** lizenziert.
 
@@ -414,7 +393,7 @@ Full license text: https://www.gnu.org/licenses/gpl-3.0.html
 ---
 
 <details>
-<summary>## 🤝 Beitragen</summary>
+<summary>🤝 Beitragen</summary>
 
 
 
