@@ -62,18 +62,18 @@ GitPulseX sammelt umfassende Statistiken über alle Repositories eines GitHub-Be
 ## 📸 Screenshots
 
 
-![](docs/screenshots/ScreenShot1.png)
+![](assets/screenshots/ScreenShot1.png)
 
-![](docs/screenshots/ScreenShot12.png)
+![](assets/screenshots/ScreenShot12.png)
 
 *(Hier später Screenshots einfügen — Hauptdialog, Report, Settings)*
 
-![](docs/screenshots/ScreenShot1.png)
+![](assets/screenshots/ScreenShot1.png)
 
-![](docs/screenshots/ScreenShot2.png)
+![](assets/screenshots/ScreenShot2.png)
 
 
-![](docs/screenshots/ScreenShot3.png)
+![](assets/screenshots/ScreenShot3.png)
 ---
 
 <details>
