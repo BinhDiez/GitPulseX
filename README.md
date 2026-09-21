@@ -1,12 +1,3 @@
-Readme.md - GitPulseX
-
-
-Readme.md - GitPulseX
-
-
-Readme.md - GitPulseX
-
-
 # GitPulseX
 
 **GitHub Multi-Repository Statistik-Collector**
