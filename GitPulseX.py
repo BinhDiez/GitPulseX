@@ -1146,7 +1146,10 @@ class myUniversalDialog(QDialog):
     def __init__(self, parent=None, title="", message="", buttons=None,
                  icon_type="", voice_message="", default_button="",
                  text_alignment=Qt.AlignCenter, input_fields=None,
-                 selectable_text=False, show_copy_button=False):
+                 selectable_text=False, show_copy_button=False,
+                 action_callbacks=None,
+                 field_changed_callbacks=None):
+
         if parent is Ellipsis:
             parent = None
 
@@ -1173,6 +1176,8 @@ class myUniversalDialog(QDialog):
         self.show_copy_button = show_copy_button
         self.msg_label = None
         self.msg_edit = None
+        self.action_callbacks = action_callbacks or {}
+        self.field_changed_callbacks = field_changed_callbacks or {}
 
         if parent and hasattr(parent, 'main_window'):
             self.main_window = parent.main_window
@@ -1531,7 +1536,17 @@ class myUniversalDialog(QDialog):
             is_default = (self.default_button == action or
                           (i == 0 and not self.default_button))
             self.style_button(btn, style_type, (max_button_width, 40), is_default)
-            btn.clicked.connect(lambda checked, r=action: self.handle_button(r))
+            # Wenn für diese Aktion ein Callback definiert ist, nutze den
+            # (z. B. um einen Sub-Dialog zu öffnen, ohne den Dialog zu schließen)
+            if action in self.action_callbacks:
+                cb = self.action_callbacks[action]
+                btn.clicked.connect(
+                    lambda checked=False, fn=cb: fn()
+                )
+            else:
+                btn.clicked.connect(
+                    lambda checked, r=action: self.handle_button(r)
+                )
             btn.setFocusPolicy(Qt.StrongFocus)
             button_layout.addWidget(btn)
 
@@ -1654,7 +1669,7 @@ class myUniversalDialog(QDialog):
             layout.addWidget(widget)
         elif field_type == 'combobox':
             widget = QComboBox()
-            widget.setMinimumHeight(36)   # sicher sichtbar
+            widget.setMinimumHeight(36)
             items = field_config.get('items', [])
             widget.addItems(items)
             default = field_config.get('default', None)
@@ -1662,7 +1677,6 @@ class myUniversalDialog(QDialog):
                 widget.setCurrentText(default)
             elif items:
                 widget.setCurrentIndex(0)
-            # Sichtbarer Stil – explizit, damit nichts überdeckt wird
             widget.setStyleSheet("""
                 QComboBox {
                     background-color: #1A1A1A;
@@ -1703,8 +1717,27 @@ class myUniversalDialog(QDialog):
                 }
             """)
             layout.addWidget(widget)
+        else:
+            widget = QLineEdit()
 
         self.input_widgets[field_name] = widget
+
+        # ---- NEU: Callback bei Feldänderung verbinden ----
+        cb = self.field_changed_callbacks.get(field_name)
+        if cb:
+            if isinstance(widget, QLineEdit):
+                widget.textChanged.connect(
+                    lambda _text, _cb=cb, _w=widget: _cb(_w.text())
+                )
+            elif isinstance(widget, QComboBox):
+                widget.currentTextChanged.connect(
+                    lambda _text, _cb=cb, _w=widget: _cb(_w.currentText())
+                )
+            elif isinstance(widget, QSpinBox):
+                widget.valueChanged.connect(
+                    lambda _val, _cb=cb, _w=widget: _cb(_w.value())
+                )
+
         return container
 
     def _apply_ultimate_dark_mode(self):
@@ -4479,8 +4512,29 @@ def ask_token_dialog(parent=None, rate_limit_warning: bool = False,
             ("Ohne Token fortfahren", "warning", "no_token"),
             ("Abbrechen", "danger", "cancel"),
         ]
-        icon = ""
+        icon = "info"
         default_btn = "accept"
+
+    # ------------------------------------------------------------
+    # Live-Callback: Button-Text passt sich dem Feldinhalt an
+    # ------------------------------------------------------------
+    def _on_token_field_changed(text: str):
+        # Beim allerersten Aufruf (während der Dialog-Erstellung) ist
+        # _btn noch nicht gesetzt → dann nichts tun.
+        if not hasattr(_on_token_field_changed, "_btn"):
+            return
+        btn = _on_token_field_changed._btn
+        new_text = ("Behalten & fortfahren"
+                    if text.strip() else "Ohne Token fortfahren")
+        if btn.text() != new_text:
+            btn.setText(new_text)
+            fm = QFontMetrics(btn.font())
+            w = max(180, fm.horizontalAdvance(new_text) + 40)
+            btn.setFixedWidth(w)
+
+    # Nur wenn wir einen gültigen Token haben, brauchen wir das Callback
+    use_callbacks = existing_token_valid and not rate_limit_warning
+    field_callbacks = {"token": _on_token_field_changed} if use_callbacks else None
 
     dialog = myUniversalDialog(
         parent,
@@ -4497,9 +4551,58 @@ def ask_token_dialog(parent=None, rate_limit_warning: bool = False,
             "placeholder": "ghp_… (leer lassen = ohne Token)",
         }],
         default_button=default_btn,
+        field_changed_callbacks=field_callbacks,
     )
+
+    # ------------------------------------------------------------
+    # Button-Referenz ermitteln und initialen Text setzen
+    # ------------------------------------------------------------
+    if use_callbacks:
+        for btn in dialog.button_widgets:
+            if btn.property("action") == "keep_token":
+                _on_token_field_changed._btn = btn
+                _on_token_field_changed(initial_token)
+                break
+
+        # "keep_token"-Button umleiten:
+        #   Feld unverändert → keep_token (alten Token behalten)
+        #   Feld geleert     → no_token   (ohne Token fortfahren)
+        def _keep_or_no_token():
+            current_text = dialog.get_input_value("token") or ""
+            if current_text.strip():
+                dialog.result_value = "keep_token"
+            else:
+                dialog.result_value = "no_token"
+            dialog.accept()
+
+        dialog.action_callbacks["keep_token"] = _keep_or_no_token
+
+    # ------------------------------------------------------------
+    # Neu eingetippten Token ebenfalls über den "accept"-Button leiten:
+    # Wenn der User etwas anderes als initial_token eingetippt hat und
+    # "Neuen Token eingeben" klickt, geht das über handle_button.
+    # Wenn der User allerdings direkt auf "Behalten & fortfahren" klickt,
+    # obwohl er etwas Neues eingetippt hat, fangen wir das hier ab:
+    # ------------------------------------------------------------
+    if use_callbacks:
+        def _handle_accept_with_new_token():
+            current_text = (dialog.get_input_value("token") or "").strip()
+            if current_text and current_text != initial_token:
+                # User hat einen neuen Token eingetippt → wie "accept"
+                dialog.result_value = "accept"
+            else:
+                dialog.result_value = "keep_token"
+            dialog.accept()
+
+        # Wenn "accept" geklickt wird, soll standardmäßig der Feldwert genommen
+        # werden — dafür brauchen wir keine Umleitung, weil handle_button den
+        # Feldwert bereits einsammelt.
+
     dialog.exec_()
 
+    # ------------------------------------------------------------
+    # Ergebnis-Auswertung
+    # ------------------------------------------------------------
     if dialog.result_value == "cancel":
         return None
     if dialog.result_value in ("no_token", "keep_token"):
@@ -5081,7 +5184,6 @@ def main():
                 saved_at = token_mgr.get_saved_at(config.owner)
                 print(f"🔑 Token für '{config.owner}' geladen "
                       f"(gespeichert: {saved_at or '?'}) → gültig ✓")
-
             else:
                 print(f"⚠️  Gespeicherter Token für '{config.owner}' "
                       f"ungültig: {err}")
@@ -5093,7 +5195,7 @@ def main():
         rate_limit_hit = (api_error == "GitHub Rate-Limit")
 
         if not token_valid:
-            # ---- Fall A: Kein gültiger Token ----
+            # ---- Fall A: Kein gültiger Token vorhanden ----
             token_input = ask_token_dialog(
                 None,
                 rate_limit_warning=rate_limit_hit,
@@ -5130,7 +5232,7 @@ def main():
                 print(f"✅ Token gespeichert für '{config.owner}'"
                       + (f" (GitHub-User: {api_user})" if api_user else ""))
         else:
-            # ---- Fall B: Gültiger Token → User fragen ----
+            # ---- Fall B: Gültiger Token vorhanden → User fragen ----
             token_input = ask_token_dialog(
                 None,
                 rate_limit_warning=False,
@@ -5147,10 +5249,19 @@ def main():
                 print(f"🗑️  Token für '{config.owner}' gelöscht.")
                 previous_token = ""
                 continue
+            elif token_input == "":
+                # User hat das Feld geleert (Button wurde zu "Ohne Token")
+                token_mgr.remove_token(config.owner)
+                config.token = ""
+                print(f"🗑️  Token für '{config.owner}' entfernt "
+                      f"(Feld geleert).")
+                previous_token = ""
+                continue
             elif token_input == saved_token:
                 config.token = saved_token
                 print(f"🔑 Verwende bestehenden Token für '{config.owner}'.")
             else:
+                # Neuer Token eingegeben → prüfen + speichern
                 is_valid, api_user, err = run_with_busy_dialog(
                     None,
                     "Prüfe neuen Token bei GitHub",
@@ -5440,6 +5551,21 @@ def main():
             )
             display_text = file_info + preview_text
 
+            # Callbacks für Aktionen, die den Dialog NICHT schließen sollen
+            def _on_info_clicked():
+                show_info_dialog(dialog, release_info)
+                # danach: Report-Dialog ist weiterhin offen
+
+            def _on_settings_clicked():
+                # Settings öffnen, OHNE Report-Dialog zu schließen
+                saved = show_settings_dialog(dialog, config)
+                if saved:
+                    # Nach Settings-Speichern: Analyse neu starten
+                    nonlocal settings_changed
+                    settings_changed = True
+                    dialog.accept()   # jetzt Report-Dialog schließen
+                # sonst: Report-Dialog bleibt offen
+
             dialog = myUniversalDialog(
                 None,
                 "GitHub Multi-Repository Statistik",
@@ -5455,7 +5581,11 @@ def main():
                 icon_type="",
                 selectable_text=True,
                 show_copy_button=True,
-                text_alignment=Qt.AlignLeft
+                text_alignment=Qt.AlignLeft,
+                action_callbacks={
+                    "info": _on_info_clicked,
+                    "settings": _on_settings_clicked,
+                }
             )
 
             @safe_slot
@@ -5478,14 +5608,10 @@ def main():
                         open_directory(output_path.parent)
                     except Exception as e:
                         print(f"Fehler beim Öffnen des Ordners: {e}")
-                elif dialog.result_value == "info":
-                    show_info_dialog(None, release_info)
-                elif dialog.result_value == "settings":
-                    # Settings-Dialog öffnen; Analyse-Schleife startet neu
-                    show_settings_dialog(None, config)
-                    settings_changed = True
                 elif dialog.result_value == "switch_user":
                     switch_requested = True
+                # "info" und "settings" werden jetzt per action_callbacks
+                # behandelt und erreichen diesen Slot nicht mehr.
 
             dialog.finished.connect(handle_dialog_result)
             dialog.exec_()
