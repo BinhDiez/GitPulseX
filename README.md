@@ -68,7 +68,6 @@ GitPulseX sammelt umfassende Statistiken über alle Repositories eines GitHub-Be
 
 ![](assets/screenshots/ScreenShot2.png)
 
-
 ## Token
 
 ![](assets/screenshots/ScreenShot3.png)
@@ -92,11 +91,6 @@ GitPulseX sammelt umfassende Statistiken über alle Repositories eines GitHub-Be
 ## weitere Einstellungen
 
 ![](assets/screenshots/ScreenShot7.png)
-
-
-## Über GitPulseX
-
-![](assets/screenshots/ScreenShot1.png)
 
 </details>
 
@@ -280,7 +274,7 @@ Alle Einstellungen werden in `settings/github_stats_config.json` gespeichert und
 ---
 
 <details>
-<summary>## 📁 Verzeichnisstruktur</summary>
+<summary>📁 Verzeichnisstruktur</summary>
 
 GitPulseX trennt sauber zwischen **Programm** und **Daten**:
 
@@ -333,7 +327,7 @@ Github-API-Abfrage/
 ---
 
 <details>
-<summary>## 📦 Als App bauen</summary>
+<summary>📦 Als App bauen</summary>
 
 
 GitPulseX kann mit **PyInstaller** in eine eigenständige App für Mac oder Windows verpackt werden. 
