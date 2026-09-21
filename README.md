@@ -4,6 +4,9 @@ Readme.md - GitPulseX
 Readme.md - GitPulseX
 
 
+Readme.md - GitPulseX
+
+
 # GitPulseX
 
 **GitHub Multi-Repository Statistik-Collector**
@@ -60,6 +63,12 @@ GitPulseX sammelt umfassende Statistiken über alle Repositories eines GitHub-Be
 
 *(Hier später Screenshots einfügen — Hauptdialog, Report, Settings)*
 
+![](docs/screenshots/ScreenShot1.png)
+
+![](docs/screenshots/ScreenShot2.png)
+
+
+![](docs/screenshots/ScreenShot3.png)
 ---
 
 <details>
