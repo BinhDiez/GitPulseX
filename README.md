@@ -1,6 +1,9 @@
 Readme.md - GitPulseX
 
 
+Readme.md - GitPulseX
+
+
 # GitPulseX
 
 **GitHub Multi-Repository Statistik-Collector**
@@ -62,9 +65,11 @@ GitPulseX sammelt umfassende Statistiken über alle Repositories eines GitHub-Be
 <details>
 <summary>🚀 Installation</summary>
 
-###Hier wird die Verwendung in einer Entwicklungsumgebung beschrieben.
 
-###Wer das nicht möchte kann sich die fertigen Apps aus dem Release herunterladen.
+### Hier wird die Verwendung in einer Entwicklungsumgebung beschrieben.
+
+### Wer das nicht möchte kann sich die fertigen Apps aus dem Release herunterladen.
+
 
 ### Voraussetzungen
 
@@ -118,9 +123,9 @@ Die `requirements.txt` enthält:
 
 ### Erststart
 
-###Hier wird die Verwendung in einer Entwicklungsumgebung beschrieben.
+### Hier wird die Verwendung in einer Entwicklungsumgebung beschrieben.
 
-###Wer das nicht möchte kann sich die fertigen Apps aus dem Release herunterladen.
+### Wer das nicht möchte kann sich die fertigen Apps aus dem Release herunterladen.
 
 **macOS / Linux:**
 
