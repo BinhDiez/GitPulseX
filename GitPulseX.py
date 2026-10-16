@@ -718,49 +718,93 @@ def classify_platform(asset_name: str) -> str:
     Klassifiziert ein Release-Asset nach Plattform anhand des Dateinamens.
 
     Rückgabe: einer von
-      'windows', 'mac_intel', 'mac_arm', 'linux', 'android', 'bsd', 'other'
+    'windows', 'mac_intel', 'mac_arm', 'linux', 'android', 'bsd', 'other'
     """
     name = asset_name.lower()
 
-    # --- Windows ---
-    if any(x in name for x in ["windows", "win32", "win64", "win-", "_win", ".exe", ".msi"]):
+    # ═══════════════════════════════════════════════════════════════
+    # 1. Windows
+    # ═══════════════════════════════════════════════════════════════
+    if any(x in name for x in [
+        "windows", "win32", "win64",
+        "win-", "_win", "-win.",
+        ".exe", ".msi",
+    ]):
         return "windows"
 
-    # --- macOS ARM (Apple Silicon) — VOR Intel prüfen, weil "arm64" auch "arm" enthält ---
-    if any(x in name for x in ["darwin-arm", "darwin_arm", "macos-arm",
-                               "apple-silicon", "apple_silicon",
-                               "m1-", "_m1", "-m1.", "m2-", "_m2",
-                               "aarch64-mac", "arm64-mac"]):
-        return "mac_arm"
+    # ═══════════════════════════════════════════════════════════════
+    # 2. macOS (Intel ODER ARM) — gemeinsame Basis-Prüfung
+    # ═══════════════════════════════════════════════════════════════
+    is_macos = (
+        "macos" in name
+        or "mac os" in name
+        or "darwin" in name
+        or "osx" in name
+        or "_mac." in name
+        or "_mac_" in name
+    )
 
-    # --- macOS Intel ---
-    if any(x in name for x in ["darwin-x64", "darwin_amd64", "macos-x64",
-                               "macos_intel", "macos-intel",
-                               "intel-mac", "x86_64-mac", "amd64-mac"]):
+    if is_macos:
+        # ─── 2a) ARM / Apple Silicon ───
+        # WICHTIG: VOR Intel prüfen (weil "arm64" auch "arm" enthält)
+        if any(x in name for x in [
+            # Klassische Apple-Silicon-Bezeichnungen
+            "darwin-arm", "darwin_arm",
+            "macos-arm", "macos_arm",
+            "apple-silicon", "apple_silicon",
+            "aarch64", "arm64",
+            # Prozessorgenerationen
+            "m1-", "_m1.", "_m1_", "-m1.",
+            "m2-", "_m2.", "_m2_", "-m2.",
+            "m3-", "_m3.", "_m3_", "-m3.",
+            # ⭐ Benutzerdefiniert: "_as."-Suffix (z.B. "_macOS_as.7z")
+            #    Sehr spezifisch — kein anderer Grund für "_as." im Dateinamen
+            "_macos_as.", "_macos_as_",
+            "_as.", "_as_",
+            "macos_as", "macos-as",
+            "apple_silicon", "apple-silicon", "_apple_silicon_", "-apple-silicon-", "_apple_silicon.", "-apple-silicon.",
+        ]):
+            return "mac_arm"
+
+        # ─── 2b) Intel ───
+        if any(x in name for x in [
+            "darwin-x64", "darwin_amd64",
+            "macos-x64", "macos_x64",
+            "macos_intel", "macos-intel",
+            "_macos_intel.", "_macos_intel_",
+            "intel", "x86_64", "amd64", "x64",
+        ]):
+            return "mac_intel"
+
+        # ─── 2c) macOS erkannt, aber Architektur unklar ───
+        # Historisch: macOS ohne Suffix = Intel
         return "mac_intel"
 
-    # --- Linux ---
-    if any(x in name for x in ["linux", "ubuntu", "debian", "fedora",
-                               "rhel", "centos", "alpine", "appimage",
-                               ".deb", ".rpm", ".snap", ".flatpak"]):
+    # ═══════════════════════════════════════════════════════════════
+    # 3. Linux
+    # ═══════════════════════════════════════════════════════════════
+    if any(x in name for x in [
+        "linux", "ubuntu", "debian", "fedora",
+        "rhel", "centos", "alpine", "appimage",
+        ".deb", ".rpm", ".snap", ".flatpak",
+    ]):
         return "linux"
 
-    # --- Android ---
+    # ═══════════════════════════════════════════════════════════════
+    # 4. Android
+    # ═══════════════════════════════════════════════════════════════
     if any(x in name for x in ["android", ".apk", "aab"]):
         return "android"
 
-    # --- BSD ---
+    # ═══════════════════════════════════════════════════════════════
+    # 5. BSD
+    # ═══════════════════════════════════════════════════════════════
     if any(x in name for x in ["freebsd", "openbsd", "netbsd"]):
         return "bsd"
 
-    # --- Ältere Heuristik als Fallback ---
-    if "win" in name:
-        return "windows"
-    if "mac" in name or "darwin" in name:
-        if any(x in name for x in ["arm", "silicon", "m1", "m2", "m3"]):
-            return "mac_arm"
-        return "mac_intel"
-
+    # ═══════════════════════════════════════════════════════════════
+    # 6. Fallback: unbekannt
+    # ═══════════════════════════════════════════════════════════════
     return "other"
 
 def build_report_preview(full_text: str, max_lines: int = 80) -> str:
