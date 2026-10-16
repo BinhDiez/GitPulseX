@@ -486,8 +486,9 @@ xattr -d com.apple.quarantine '/Users/username/Downloads/GitPulseX.app'
 
 | Suffix | Betriebssystem |
 |--------|-----------------|
-| `_macOS_as` | Apple Silicon (M1–M4) |
-| `_macOS_intel` | Intel Macs |
+| `_macOS_arm64` | 🍎 Apple Silicon (M1–M4) |
+| `_macOS_x86_64` | 🍎 Intel Macs |
+| `_windows_x64` | 🪟 Windows 64 Bit |
 
 ### Extract 7z-Archive
 
