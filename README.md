@@ -482,13 +482,15 @@ xattr -d com.apple.quarantine '/Users/username/Downloads/GitPulseX.app'
 <details>
 <summary>🖥️ Download-Info</summary>
 
-### Download-Versiones
+### Download-Versione
 
 | Suffix | Betriebssystem |
 |--------|-----------------|
 | `_macOS_arm64` | 🍎 Apple Silicon (M1–M4) |
 | `_macOS_x86_64` | 🍎 Intel Macs |
 | `_windows_x64` | 🪟 Windows 64 Bit |
+
+> Windows on ARM wird derzeit nicht unterstützt / not supported
 
 ### Extract 7z-Archive
 
